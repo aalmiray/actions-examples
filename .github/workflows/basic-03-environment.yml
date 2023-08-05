@@ -1,0 +1,31 @@
+name: Basic-Environment
+on:
+  workflow_dispatch:
+env:
+  myNull: ${{ null }}
+  myBoolean: ${{ false }}
+  myIntegerNumber: ${{ 711 }}
+  myFloatNumber: ${{ -9.2 }}
+  myHexNumber: ${{ 0xff }}
+  myExponentialNumber: ${{ -2.99e-2 }}
+  myString: Mona the Octocat
+  myStringInBraces: ${{ 'It''s open source!' }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set the value
+      id: step_one
+      run: |
+        echo "action_state=yellow" >> "$GITHUB_ENV"
+    - name: Use the value
+      id: step_two
+      run: |
+        echo "${{ env.action_state }}" # This will output 'yellow'
+    - name : Generate step summary
+      id: step_three
+      run: | 
+        echo "### Hello world! :rocket:" >> $GITHUB_STEP_SUMMARY
+        echo "#### Enviroment! :notebook_with_decorative_cover:" >> $GITHUB_STEP_SUMMARY
+        echo "${{ format('{0}  &nbsp; {1}  &nbsp; {2}', env.myHexNumber, env.myString, env.myStringInBraces) }}" >> $GITHUB_STEP_SUMMARY
+        

@@ -1,0 +1,52 @@
+environment:
+  properties:
+    jdkPathPrefix: target/jdks
+    graalFilePrefix: graalvm-community-openjdk-22.0.1+8.1
+
+project:
+  name: helloworld
+  description: HelloWorld in Java
+  longDescription: HelloWorld in Java
+  links:
+    homepage: https://github.com/jreleaser/helloworld-graalvm
+  authors:
+    - Andres Almiray
+  license: APACHE-2.0
+  inceptionYear: 2023
+  stereotype: CLI
+  languages:
+    java:
+      version: 25
+      groupId: org.jreleaser.examples
+      artifactId: helloworld
+      mainClass: org.jreleaser.examples.HelloWorld
+      mainModule: org.jreleaser.examples
+
+platform:
+  replacements:
+    aarch_64: aarch64
+
+release:
+  github:
+    overwrite: true
+    changelog:
+      formatted: ALWAYS
+      preset: conventional-commits
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+
+assemble:
+  nativeImage:
+    helloworld:
+      active: ALWAYS
+      imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
+      matrix:
+        rows:
+          - { platform: osx-aarch_64,   suffix: OsxArm,       dir: '/Contents/Home' }
+          - { platform: osx-x86_64,     suffix: OsxIntel,     dir: '/Contents/Home' }
+          - { platform: linux-x86_64,   suffix: LinuxIntel,   dir: '' }
+          - { platform: windows-x86_64, suffix: WindowsIntel, dir: '' }
+      graalJdkPattern:
+        path: '{{jdkPathPrefix}}/graalvm22{{matrix.suffix}}/{{graalFilePrefix}}{{matrix.dir}}'
+      mainJar:
+        path: 'target/{{distributionName}}-{{projectVersion}}.jar'

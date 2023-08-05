@@ -1,0 +1,55 @@
+name: Build-3
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [ main ]
+
+jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.vars.outputs.VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 25
+          distribution: zulu
+          cache: maven
+
+      - name: Version
+        id: vars
+        shell: bash
+        run: |
+          cd helloworld-java-bin
+          VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "VERSION=$(echo $VERSION)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: [ precheck ]
+    if: ${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}
+    name: 'Build ${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15-intel, macos-15, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 25
+          distribution: zulu
+          cache: maven
+
+      - name: Build
+        run: |
+          cd helloworld-java-bin
+          ./mvnw -ntp -B verify

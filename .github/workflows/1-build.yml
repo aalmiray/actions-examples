@@ -1,0 +1,25 @@
+name: Build-1
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 25
+          distribution: zulu
+          cache: maven
+
+      - name: Build
+        run: |
+          cd helloworld-java-bin
+          ./mvnw -ntp -B verify
